@@ -20,6 +20,7 @@ import queue
 import shutil
 import sys
 import threading
+import copy
 
 import afl_utils
 from afl_utils import SampleIndex, AflThread
@@ -365,7 +366,7 @@ Use '@@' to specify crash sample input file position (see afl-fuzz usage).")
 
     sync_dir = os.path.abspath(os.path.expanduser(args.sync_dir))
     if not os.path.exists(sync_dir):
-        print_err("No valid directory provided for <SYNC_DIR>!")
+        print_err("No valid directory provided for <SYNC_DIR>!: %s" % sync_dir)
         return
 
     out_dir = os.path.abspath(os.path.expanduser(args.collection_dir))
@@ -397,7 +398,8 @@ Use '@@' to specify crash sample input file position (see afl-fuzz usage).")
     print_ok("Found %d fuzzers, collecting crash samples." % len(fuzzers))
 
     sample_index = build_sample_index(sync_dir, out_dir, fuzzers, lite_db, args.min_filename)
-
+    sample_index_original = copy.copy(sample_index)
+ 
     if len(sample_index.index) > 0:
         print_ok("Successfully indexed %d crash samples." % len(sample_index.index))
     elif db_file:
@@ -459,7 +461,7 @@ Use '@@' to specify crash sample input file position (see afl-fuzz usage).")
         seen = set()
         seen_add = seen.add
         classification_data_dedupe = [x for x in classification_data
-                                      if x['Hash'] not in seen and not seen_add(x['Hash'])]
+                                      if x['Hash'].split(".")[0] not in seen and not seen_add(x['Hash'].split(".")[0])]
 
         # remove dupe samples identified by exploitable hash
         uninteresting_samples = [x['Sample'] for x in classification_data
@@ -494,6 +496,14 @@ Use '@@' to specify crash sample input file position (see afl-fuzz usage).")
 
     print_ok("Copying %d samples into output directory..." % len(sample_index.index))
     files_collected = copy_samples(sample_index)
+
+    # Move crashes to a special folder, collected_all_crashes
+    print_ok("Moving all crashes to %s (Samples: %d)" % (os.path.join(sample_index.output_dir, "all_crashes"), len(sample_index_original.index)))
+    if not os.path.exists(os.path.join(sample_index_original.output_dir, "all_crashes")):
+        os.makedirs(os.path.join(sample_index_original.output_dir, "all_crashes"))
+    for sample in sample_index_original.index:
+        #print("Moving %s to %s" % (sample['input'], os.path.join(sample_index.output_dir, "all_crashes", sample['output'])))
+        shutil.move(sample['input'], os.path.join(sample_index_original.output_dir, "all_crashes", sample['output']))
 
     # generate filelist of collected crash samples
     if args.list_filename:
