@@ -1,6 +1,6 @@
-Modify version using as a hash only the last 5 functions from the backtrace instead of the whole backtrace. This improves in certain scenarios the way to identify unique crashes.
+Modified version using as a hash the last 5 functions from the backtrace instead of the whole backtrace. This improves, in certain scenarios, the way of identifying unique crashes.
 
-Also this version is moving all the crashes to a special folder inside the collect crashes, all-crashes. This is because when you have more than 10k crashes, afl-collect is very slow. 
+Also this version is moving all the crashes to a special folder inside the collected crashes folder, all-crashes. This is because when you have more than 10k crashes, afl-collect is very slow. 
 
 # afl-utils [![Build Status](https://travis-ci.org/rc0r/afl-utils.svg?branch=master)](https://travis-ci.org/rc0r/afl-utils)[![Coverage Status](https://coveralls.io/repos/rc0r/afl-utils/badge.svg?branch=master&service=github)](https://coveralls.io/github/rc0r/afl-utils?branch=master)
 
