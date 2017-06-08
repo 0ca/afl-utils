@@ -412,7 +412,7 @@ Use '@@' to specify crash sample input file position (see afl-fuzz usage).")
     if args.remove_invalid:
         from afl_utils import afl_vcrash
         invalid_samples, timeout_samples = afl_vcrash.verify_samples(int(args.num_threads), sample_index.inputs(),
-                                                                     args.target_cmd, timeout_secs=10)
+                                                                     args.target_cmd, timeout_secs=2)
 
         # store invalid samples in db
         if args.gdb_expl_script_file and db_file:

@@ -39,6 +39,8 @@ class VerifyThread(threading.Thread):
             self.in_queue_lock.acquire()
             if not self.in_queue.empty():
                 cs = self.in_queue.get()
+                if self.in_queue.qsize() % 1000 == 0:
+                    print("Verify queue items: %d" % self.in_queue.qsize())
                 self.in_queue_lock.release()
 
                 cmd = self.target_cmd.replace("@@", os.path.abspath(cs))
